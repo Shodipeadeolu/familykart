@@ -346,6 +346,9 @@ function GroceriesPanel({ user, household }) {
 
   return (
     <div style={S.panelInner}>
+      <div style={{ margin: "6px 14px", padding: "6px 10px", background: "#fffbe6", border: "1.5px solid #f5c518", borderRadius: 8, fontSize: 12, color: "#333" }}>
+        🔍 hid: <strong>{hid ?? "NULL"}</strong> | householdId: <strong>{user?.householdId ?? "NULL"}</strong>
+      </div>
       <ScopeToggle scope={scope} setScope={setScope} labelA="🏠 Household" labelB="🔒 Private" colorA="#E8845A" colorB="#5A8FE8" />
 
       {/* Invite code banner */}
