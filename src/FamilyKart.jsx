@@ -8,14 +8,15 @@ import {
   onSnapshot, query, where, orderBy, serverTimestamp, setDoc,
 } from "firebase/firestore";
 
-// ── PASTE YOUR FIREBASE CONFIG HERE ──────────────────────────────────────────
+// ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyDJtoPxFcDdAw0awSRDm-K3pNW9yG-l85A",
+  authDomain: "familykart-4001f.firebaseapp.com",
+  projectId: "familykart-4001f",
+  storageBucket: "familykart-4001f.firebasestorage.app",
+  messagingSenderId: "383395207807",
+  appId: "1:383395207807:web:bacd80c593f1caf8b67d4a",
+  measurementId: "G-1N0D5F1GFX",
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
