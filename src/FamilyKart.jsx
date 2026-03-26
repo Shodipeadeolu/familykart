@@ -234,9 +234,10 @@ function GroceriesPanel({ user, household }) {
   const [filterCat, setFilterCat] = useState("All");
   const [shopping, setShopping] = useState(false); // shopping mode
   const inputRef = useRef(null);
-  const hid = household?.id || "none";
+  const hid = household?.id ?? null;
 
   useEffect(() => {
+    if (scope === "household" && !hid) { setItems([]); setLoading(false); return; }
     setLoading(true);
     const col = collection(db, "shopping_items");
     let q;
@@ -254,6 +255,7 @@ function GroceriesPanel({ user, household }) {
   async function addItem(e) {
     e.preventDefault();
     if (!input.trim()) return;
+    if (scope === "household" && !hid) return; // household not loaded yet, do nothing
     const base = {
       name: input.trim(), qty: qty || "1", category, done: false, bought: false,
       createdAt: serverTimestamp(), addedBy: user.displayName || user.email, addedByUid: user.uid,
@@ -431,9 +433,10 @@ function NotesPanel({ user, household }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [noteColor, setNoteColor] = useState(NOTE_COLORS[0]);
-  const hid = household?.id || "none";
+  const hid = household?.id ?? null;
 
   useEffect(() => {
+    if (scope === "household" && !hid) { setNotes([]); setLoading(false); return; }
     setLoading(true);
     const col = collection(db, "family_notes");
     let q;
@@ -454,6 +457,7 @@ function NotesPanel({ user, household }) {
 
   async function save() {
     if (!title.trim() && !body.trim()) { close(); return; }
+    if (scope === "household" && !hid) { close(); return; }
     const base = { title: title.trim(), body: body.trim(), color: noteColor, updatedAt: serverTimestamp(), authorName: user.displayName || user.email, authorUid: user.uid };
     if (editing) {
       await updateDoc(doc(db, "family_notes", editing), base);
