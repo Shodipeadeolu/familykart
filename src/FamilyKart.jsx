@@ -87,7 +87,7 @@ export default function FamilyKart() {
   const onTouchEnd = e => {
     if (swipeStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - swipeStartX.current;
-    if (Math.abs(dx) > 55) setMainTab(t => Math.max(0, Math.min(2, dx < 0 ? t + 1 : t - 1)));
+    if (Math.abs(dx) > 80) setMainTab(t => Math.max(0, Math.min(2, dx < 0 ? t + 1 : t - 1)));
     swipeStartX.current = null;
   };
 
@@ -234,10 +234,9 @@ function GroceriesPanel({ user, household }) {
   const [filterCat, setFilterCat] = useState("All");
   const [shopping, setShopping] = useState(false); // shopping mode
   const inputRef = useRef(null);
-  const hid = household?.id ?? null;
+  const hid = household?.id || "none";
 
   useEffect(() => {
-    if (scope === "household" && !hid) { setItems([]); setLoading(false); return; }
     setLoading(true);
     const col = collection(db, "shopping_items");
     let q;
@@ -255,7 +254,6 @@ function GroceriesPanel({ user, household }) {
   async function addItem(e) {
     e.preventDefault();
     if (!input.trim()) return;
-    if (scope === "household" && !hid) return; // household not loaded yet, do nothing
     const base = {
       name: input.trim(), qty: qty || "1", category, done: false, bought: false,
       createdAt: serverTimestamp(), addedBy: user.displayName || user.email, addedByUid: user.uid,
@@ -395,29 +393,68 @@ function GroceriesPanel({ user, household }) {
       {loading && <Empty text="Loading…" />}
       {!loading && displayed.length === 0 && <Empty text={doneTab ? "No completed items." : "Nothing here — add something above!"} />}
 
-      <div style={{ padding: "4px 14px 0" }}>
-        {displayed.map(item => (
-          <div key={item.id} style={{ ...S.item, opacity: item.done ? .55 : 1 }}>
-            <button style={{ ...S.check, borderColor: item.done ? "#4DBF8A" : "#ccc", background: item.done ? "#4DBF8A" : "transparent" }}
-              onClick={() => toggleDone(item)}>
-              {item.done && <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>✓</span>}
-            </button>
-            <div style={S.itemBody}>
-              <span style={{ ...S.itemName, textDecoration: item.done ? "line-through" : "none" }}>{item.name}</span>
-              <div style={S.itemMeta}>
-                <span style={S.metaCat}>{item.category}</span>
-                <span style={S.metaQty}>× {item.qty}</span>
-                {scope === "household" && <span style={{ ...S.metaWho, color: colorFor(item.addedByUid) }}>{item.addedBy?.split(" ")[0]}</span>}
-                {scope === "private" && <span style={S.privateTag}>🔒</span>}
+      {doneTab ? (
+        <div style={{ padding: "4px 14px 0" }}>
+          {(() => {
+            // Group done items by date
+            const groups = {};
+            displayed.forEach(item => {
+              const ts = item.createdAt?.toDate ? item.createdAt.toDate() : new Date();
+              const label = ts.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+              if (!groups[label]) groups[label] = [];
+              groups[label].push(item);
+            });
+            return Object.entries(groups).map(([dateLabel, groupItems]) => (
+              <div key={dateLabel}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#bbb", textTransform: "uppercase", letterSpacing: 0.8, margin: "14px 0 6px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>🛒</span>
+                  <span>{dateLabel} Shopping</span>
+                  <div style={{ flex: 1, height: 1, background: "#EDE8DF", marginLeft: 4 }} />
+                </div>
+                {groupItems.map(item => (
+                  <div key={item.id} style={{ ...S.item, opacity: 0.55 }}>
+                    <div style={{ ...S.check, borderColor: "#4DBF8A", background: "#4DBF8A", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>✓</span>
+                    </div>
+                    <div style={S.itemBody}>
+                      <span style={{ ...S.itemName, textDecoration: "line-through" }}>{item.name}</span>
+                      <div style={S.itemMeta}>
+                        <span style={S.metaCat}>{item.category}</span>
+                        <span style={S.metaQty}>× {item.qty}</span>
+                        {scope === "household" && <span style={{ ...S.metaWho, color: colorFor(item.addedByUid) }}>{item.addedBy?.split(" ")[0]}</span>}
+                      </div>
+                    </div>
+                    <button style={S.delBtn} onClick={() => deleteDoc(doc(db, "shopping_items", item.id))}>✕</button>
+                  </div>
+                ))}
               </div>
+            ));
+          })()}
+          {done.length > 0 && (
+            <button style={S.clearBtn} onClick={() => done.forEach(i => deleteDoc(doc(db, "shopping_items", i.id)))}>🗑 Clear all done items</button>
+          )}
+        </div>
+      ) : (
+        <div style={{ padding: "4px 14px 0" }}>
+          {displayed.map(item => (
+            <div key={item.id} style={S.item}>
+              <button style={{ ...S.check, borderColor: item.done ? "#4DBF8A" : "#ccc", background: item.done ? "#4DBF8A" : "transparent" }}
+                onClick={() => toggleDone(item)}>
+                {item.done && <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>✓</span>}
+              </button>
+              <div style={S.itemBody}>
+                <span style={S.itemName}>{item.name}</span>
+                <div style={S.itemMeta}>
+                  <span style={S.metaCat}>{item.category}</span>
+                  <span style={S.metaQty}>× {item.qty}</span>
+                  {scope === "household" && <span style={{ ...S.metaWho, color: colorFor(item.addedByUid) }}>{item.addedBy?.split(" ")[0]}</span>}
+                  {scope === "private" && <span style={S.privateTag}>🔒</span>}
+                </div>
+              </div>
+              <button style={S.delBtn} onClick={() => deleteDoc(doc(db, "shopping_items", item.id))}>✕</button>
             </div>
-            <button style={S.delBtn} onClick={() => deleteDoc(doc(db, "shopping_items", item.id))}>✕</button>
-          </div>
-        ))}
-      </div>
-
-      {doneTab && done.length > 0 && (
-        <button style={S.clearBtn} onClick={() => done.forEach(i => deleteDoc(doc(db, "shopping_items", i.id)))}>🗑 Clear done items</button>
+          ))}
+        </div>
       )}
     </div>
   );
