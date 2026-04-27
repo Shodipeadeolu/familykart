@@ -512,18 +512,15 @@ function NotesPanel({ user, household }) {
     <div style={S.panelInner}>
       <ScopeToggle scope={scope} setScope={setScope} labelA="🏠 Family Notes" labelB="🔒 Private" colorA="#C45AC7" colorB="#5A8FE8" />
       {composing && (
-        <div style={S.modalOverlay}>
-          <div style={{ ...S.modalCard, background: noteColor }}>
-            <div style={S.modalHeader}>
-              <span style={S.modalHeading}>{editing ? "Edit note" : "New note"}</span>
-              <div style={S.colorRow}>{NOTE_COLORS.map(c => <button key={c} onClick={() => setNoteColor(c)} style={{ ...S.colorDot, background: c, outline: c === noteColor ? "3px solid #444" : "2px solid #ddd" }} />)}</div>
-            </div>
-            <input style={{ ...S.noteTitleInput, background: "transparent" }} placeholder="Title…" value={title} onChange={e => setTitle(e.target.value)} />
-            <textarea style={{ ...S.noteBodyInput, background: "transparent" }} placeholder="Write your note…" value={body} onChange={e => setBody(e.target.value)} rows={7} />
-            <div style={S.modalFooter}>
-              <button style={S.cancelBtn} onClick={close}>Cancel</button>
-              <button style={{ ...S.saveBtn, background: scope === "private" ? "#5A8FE8" : "#C45AC7" }} onClick={save}>Save</button>
-            </div>
+        <div style={{ position: "fixed", inset: 0, zIndex: 200, background: noteColor, display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+            <button style={{ background: "none", border: "none", fontSize: 15, fontWeight: 800, color: "#555", cursor: "pointer", fontFamily: "inherit", padding: "4px 0", display: "flex", alignItems: "center", gap: 6 }} onClick={close}>← Back</button>
+            <div style={S.colorRow}>{NOTE_COLORS.map(c => <button key={c} onClick={() => setNoteColor(c)} style={{ ...S.colorDot, background: c, outline: c === noteColor ? "3px solid #444" : "2px solid #ddd" }} />)}</div>
+            <button style={{ ...S.saveBtn, background: scope === "private" ? "#5A8FE8" : "#C45AC7", padding: "7px 18px" }} onClick={save}>Save</button>
+          </div>
+          <div style={{ flex: 1, overflowY: "auto", padding: "18px 18px 40px" }}>
+            <input style={{ ...S.noteTitleInput, background: "transparent", fontSize: 22, marginBottom: 14 }} placeholder="Title…" value={title} onChange={e => setTitle(e.target.value)} />
+            <textarea style={{ ...S.noteBodyInput, background: "transparent", minHeight: 300, fontSize: 15 }} placeholder="Write your note…" value={body} onChange={e => setBody(e.target.value)} rows={14} />
           </div>
         </div>
       )}
