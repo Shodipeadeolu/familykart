@@ -512,15 +512,31 @@ function NotesPanel({ user, household }) {
     <div style={S.panelInner}>
       <ScopeToggle scope={scope} setScope={setScope} labelA="🏠 Family Notes" labelB="🔒 Private" colorA="#C45AC7" colorB="#5A8FE8" />
       {composing && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 200, background: noteColor, display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-            <button style={{ background: "none", border: "none", fontSize: 15, fontWeight: 800, color: "#555", cursor: "pointer", fontFamily: "inherit", padding: "4px 0", display: "flex", alignItems: "center", gap: 6 }} onClick={close}>← Back</button>
-            <div style={S.colorRow}>{NOTE_COLORS.map(c => <button key={c} onClick={() => setNoteColor(c)} style={{ ...S.colorDot, background: c, outline: c === noteColor ? "3px solid #444" : "2px solid #ddd" }} />)}</div>
-            <button style={{ ...S.saveBtn, background: scope === "private" ? "#5A8FE8" : "#C45AC7", padding: "7px 18px" }} onClick={save}>Save</button>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, background: noteColor, display: "flex", flexDirection: "column", fontFamily: "Nunito, sans-serif" }}>
+          {/* Top bar */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "52px 16px 12px", borderBottom: "1px solid rgba(0,0,0,0.08)", flexShrink: 0 }}>
+            <button style={{ background: "none", border: "none", fontSize: 16, fontWeight: 800, color: "#444", cursor: "pointer", fontFamily: "inherit", padding: "6px 4px", display: "flex", alignItems: "center", gap: 5 }} onClick={close}>← Back</button>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {NOTE_COLORS.map(c => (
+                <button key={c} onClick={() => setNoteColor(c)} style={{ width: 24, height: 24, borderRadius: "50%", border: "none", cursor: "pointer", background: c, outline: c === noteColor ? "3px solid #444" : "2px solid rgba(0,0,0,0.15)", outlineOffset: 2, flexShrink: 0 }} />
+              ))}
+            </div>
+            <button style={{ background: scope === "private" ? "#5A8FE8" : "#C45AC7", border: "none", color: "#fff", borderRadius: 10, padding: "8px 20px", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }} onClick={save}>Save</button>
           </div>
-          <div style={{ flex: 1, overflowY: "auto", padding: "18px 18px 40px" }}>
-            <input style={{ ...S.noteTitleInput, background: "transparent", fontSize: 22, marginBottom: 14 }} placeholder="Title…" value={title} onChange={e => setTitle(e.target.value)} />
-            <textarea style={{ ...S.noteBodyInput, background: "transparent", minHeight: 300, fontSize: 15 }} placeholder="Write your note…" value={body} onChange={e => setBody(e.target.value)} rows={14} />
+          {/* Note content */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 60px", display: "flex", flexDirection: "column" }}>
+            <input
+              style={{ display: "block", width: "100%", fontSize: 24, fontWeight: 900, color: "#1a1a2e", border: "none", outline: "none", fontFamily: "inherit", background: "transparent", marginBottom: 16, padding: 0, boxSizing: "border-box" }}
+              placeholder="Title…"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+            />
+            <textarea
+              style={{ flex: 1, width: "100%", fontSize: 16, color: "#333", border: "none", outline: "none", fontFamily: "inherit", resize: "none", lineHeight: 1.8, background: "transparent", padding: 0, boxSizing: "border-box", minHeight: "60vh" }}
+              placeholder="Write your note…"
+              value={body}
+              onChange={e => setBody(e.target.value)}
+            />
           </div>
         </div>
       )}
